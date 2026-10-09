@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from starlette.concurrency import run_in_threadpool
 
 from app.auth.dependencies import CurrentUser, Session, trusted_origin
-from app.auth.models import User
+from app.auth.models import Role, User
 from app.auth.schemas import Login, Message, Register, UserPublic
 from app.auth.security import COOKIE, DUMMY_HASH, password_hasher, session_key
 
@@ -43,6 +43,7 @@ async def register(body: Register, request: Request, session: Session) -> User:
         password_hash=await run_in_threadpool(
             password_hasher.hash, body.password.get_secret_value()
         ),
+        role=Role(request.app.state.settings.registration_default_role),
     )
     session.add(user)
     try:

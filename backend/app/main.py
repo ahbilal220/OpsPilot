@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from uuid import uuid4
 
 from fastapi import FastAPI, Request, Response
+from fastapi.staticfiles import StaticFiles
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
@@ -16,7 +17,7 @@ from app.core.config import Settings
 from app.core.errors import ErrorEnvelope, error_response, install_error_handlers
 from app.evidence.routes import router as evidence_router
 from app.incidents.routes import router as incidents_router
-from app.investigations.queue import enqueue_investigation
+from app.investigations.queue import enqueue_investigation, enqueue_investigation_inline
 from app.telemetry.logging import configure_logging, request_id
 from app.tools.bootstrap import build_tool_gateway
 from app.tools.routes import router as tools_router
@@ -54,7 +55,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         redoc_url=None,
     )
     app.state.settings = config
-    app.state.enqueue_investigation = enqueue_investigation
+    app.state.enqueue_investigation = (
+        enqueue_investigation_inline
+        if config.investigation_execution_mode == "inline"
+        else enqueue_investigation
+    )
     install_error_handlers(app)
 
     @app.middleware("http")
@@ -102,6 +107,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             responses={
                 code: {"model": ErrorEnvelope} for code in (401, 403, 409, 422, 429, 500, 503)
             },
+        )
+    if config.frontend_static_dir and config.frontend_static_dir.is_dir():
+        app.mount(
+            "/",
+            StaticFiles(directory=config.frontend_static_dir, html=True),
+            name="frontend",
         )
     return app
 

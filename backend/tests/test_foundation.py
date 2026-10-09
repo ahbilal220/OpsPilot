@@ -15,6 +15,11 @@ from app.telemetry.logging import JsonFormatter
 ACCOUNT = {"email": "Engineer@example.com", "password": "a-long-test-password", "name": "Engineer"}
 
 
+def test_render_postgres_url_uses_async_driver():
+    settings = Settings(database_url="postgresql://user:password@example.test/opspilot")
+    assert settings.database_url.get_secret_value().startswith("postgresql+asyncpg://")
+
+
 async def register_login(client):
     response = await client.post("/api/v1/auth/register", json=ACCOUNT)
     assert response.status_code == 201

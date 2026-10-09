@@ -11,6 +11,27 @@ patch generation, sandbox execution, approval, and remediation.
 See the [portfolio case study](docs/PORTFOLIO_CASE_STUDY.md) for the problem, solution,
 safety properties, and current implementation boundary.
 
+## Live demo
+
+OpsPilot is configured for a zero-cost Render portfolio deployment at
+<https://ahmad-opspilot.onrender.com>. The Render image packages the exported Next.js
+frontend and FastAPI backend into one free web service. Free Render Postgres stores
+demo records, while free Key Value stores short-lived sessions; the bounded
+investigation executes in-process so the deployment does not require a paid background
+worker.
+
+New demo accounts receive the engineer role and can run the deterministic checkout
+N+1 investigation. This behavior is enabled only by the Render environment; local and
+production defaults still register read-only viewers.
+
+`.github/workflows/keepalive.yml` pings the health endpoint every 14 minutes using a
+standard GitHub-hosted runner. The repository is public, so these standard runner jobs
+do not incur GitHub Actions charges. Render's own cron service is deliberately not used
+because it has a minimum monthly charge. Render can still restart free instances, the
+workspace has a shared monthly free-instance-hour limit, free Key Value is ephemeral,
+and free Postgres expires after 30 days, so this remains a portfolio demo rather than a
+production availability guarantee.
+
 ## Run locally
 
 Requires Docker Desktop or Docker Engine with Compose v2 or newer. Commands below use

@@ -1,0 +1,34 @@
+# syntax=docker/dockerfile:1
+FROM node:22-alpine AS frontend-build
+WORKDIR /frontend
+RUN corepack enable
+COPY frontend/package.json frontend/pnpm-lock.yaml frontend/pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY frontend/ ./
+ENV STATIC_EXPORT=1
+RUN pnpm build
+
+FROM python:3.12-slim AS runtime
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+COPY backend/pyproject.toml backend/requirements.lock backend/requirements-runtime.lock ./
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --timeout 120 -r requirements-runtime.lock
+COPY backend/app ./app
+COPY backend/alembic ./alembic
+COPY backend/alembic.ini ./
+COPY backend/tool-fixtures /opt/opspilot/tool-fixtures
+COPY backend/tool-repository /opt/opspilot/tool-repository
+COPY --from=frontend-build /frontend/out /app/frontend
+RUN git -C /opt/opspilot/tool-repository init \
+    && git -C /opt/opspilot/tool-repository config user.name "OpsPilot Fixture" \
+    && git -C /opt/opspilot/tool-repository config user.email "fixture@opspilot.local" \
+    && git -C /opt/opspilot/tool-repository add . \
+    && git -C /opt/opspilot/tool-repository commit -m "Add recommendation service regression fixture" \
+    && useradd --uid 10001 --create-home opspilot \
+    && chown -R opspilot:opspilot /app /opt/opspilot
+USER opspilot
+EXPOSE 10000
+CMD ["/bin/sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000} --no-access-log --no-proxy-headers"]

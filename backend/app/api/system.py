@@ -1,6 +1,7 @@
 import asyncio
+import time
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import text
@@ -17,6 +18,29 @@ class Health(BaseModel):
 @router.get("/health", response_model=Health)
 async def health() -> Health:
     return Health(status="ok")
+
+
+@router.get("/query", include_in_schema=False)
+async def demo_prometheus_query(
+    query: str = Query(min_length=1, max_length=500),
+) -> dict[str, object]:
+    """Serve the deterministic metric used by the public single-container demo."""
+    values = {
+        "demo_checkout_p95_latency_seconds": "1.91",
+        "demo_checkout_db_queries_per_request": "43",
+    }
+    return {
+        "status": "success",
+        "data": {
+            "resultType": "vector",
+            "result": [
+                {
+                    "metric": {"__name__": query},
+                    "value": [int(time.time()), values.get(query, "0")],
+                }
+            ],
+        },
+    }
 
 
 @router.get("/ready", response_model=Health)
