@@ -1,0 +1,8 @@
+groups:
+  - name: opspilot-demo
+    interval: 5s
+    rules:
+      - record: demo_checkout_p95_latency_seconds
+        expr: vector(1.91)
+      - record: demo_checkout_db_queries_per_request
+        expr: vector(43)

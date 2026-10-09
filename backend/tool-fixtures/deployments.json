@@ -1,0 +1,20 @@
+[
+  {
+    "id": "deploy-20260923-01",
+    "service": "checkout-api",
+    "environment": "demo",
+    "deployed_at": "2026-09-23T13:52:00Z",
+    "commit_sha": "fixture-head",
+    "status": "succeeded",
+    "summary": "Recommendation loader refactor"
+  },
+  {
+    "id": "deploy-20260922-04",
+    "service": "checkout-api",
+    "environment": "demo",
+    "deployed_at": "2026-09-22T18:10:00Z",
+    "commit_sha": "fixture-previous",
+    "status": "succeeded",
+    "summary": "Checkout copy update"
+  }
+]

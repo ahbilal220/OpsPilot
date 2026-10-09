@@ -1,0 +1,109 @@
+name: opspilot
+x-backend: &backend
+  build:
+    context: ./backend
+    target: runtime
+  environment: &backend-env
+    DATABASE_URL: postgresql+asyncpg://opspilot:${POSTGRES_PASSWORD:?Copy .env.example to .env and set a password}@postgres:5432/opspilot
+    REDIS_URL: redis://redis:6379/0
+    FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
+    API_ORIGIN: ${API_ORIGIN:-http://localhost:8000}
+    ADDITIONAL_TRUSTED_ORIGINS: ${ADDITIONAL_TRUSTED_ORIGINS:-http://127.0.0.1:3000,http://127.0.0.1:8000}
+    COOKIE_SECURE: ${COOKIE_SECURE:-true}
+    REGISTRATION_ENABLED: ${REGISTRATION_ENABLED:-false}
+    PROMETHEUS_URL: http://prometheus:9090
+    TOOL_FIXTURE_ROOT: /opt/opspilot/tool-fixtures
+    TOOL_REPOSITORY_ROOT: /opt/opspilot/tool-repository
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: opspilot
+      POSTGRES_USER: opspilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U opspilot -d opspilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --save, "", --appendonly, "no"]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  prometheus:
+    image: prom/prometheus:v3.6.0
+    command: [--config.file=/etc/prometheus/prometheus.yml, --storage.tsdb.path=/prometheus]
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/prometheus/demo-rules.yml:/etc/prometheus/demo-rules.yml:ro
+    ports: ["127.0.0.1:9090:9090"]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      test: [CMD, wget, --spider, -q, http://localhost:9090/-/ready]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  migrate:
+    <<: *backend
+    command: [alembic, upgrade, head]
+    depends_on:
+      postgres: {condition: service_healthy}
+  api:
+    <<: *backend
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/ready', timeout=4)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    read_only: true
+    tmpfs: [/tmp]
+  worker:
+    <<: *backend
+    command: [celery, -A, app.investigations.celery_app:celery_app, worker, --loglevel=INFO, --concurrency=1]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+      prometheus: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp]
+  test:
+    <<: *backend
+    profiles: [test]
+    build:
+      context: ./backend
+      target: test
+    environment:
+      <<: *backend-env
+      RUN_INTEGRATION: "1"
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+      prometheus: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp]
+  frontend:
+    build: ./frontend
+    ports: ["127.0.0.1:3000:3000"]
+    depends_on:
+      api: {condition: service_healthy}
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+volumes:
+  postgres-data:

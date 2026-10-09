@@ -1,0 +1,25 @@
+{
+  "project": "OpsPilot",
+  "version": "0.1-spec",
+  "documents": [
+    "AGENT_DESIGN.md",
+    "API_SPEC.md",
+    "ARCHITECTURE.md",
+    "CODEX_INSTRUCTIONS.md",
+    "DATA_MODEL.md",
+    "DEMO_APP_AND_INCIDENTS.md",
+    "DEVOPS_DEPLOYMENT.md",
+    "EVALUATION_FRAMEWORK.md",
+    "OBSERVABILITY.md",
+    "PRD.md",
+    "RAG_DESIGN.md",
+    "README.md",
+    "ROADMAP.md",
+    "SECURITY_GUARDRAILS.md",
+    "SRS.md",
+    "TESTING_STRATEGY.md",
+    "UI_REQUIREMENTS.md"
+  ],
+  "recommended_start": "CODEX_INSTRUCTIONS.md",
+  "mvp_first_vertical_slice": "N+1 database regression"
+}
