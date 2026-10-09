@@ -6,6 +6,11 @@ triages the first N+1-query scenario, collects six-source evidence, validates a
 hypothesis, and produces a cited root-cause diagnosis. It deliberately stops before RAG,
 patch generation, sandbox execution, approval, and remediation.
 
+![OpsPilot architecture](docs/assets/opspilot-architecture.png)
+
+See the [portfolio case study](docs/PORTFOLIO_CASE_STUDY.md) for the problem, solution,
+safety properties, and current implementation boundary.
+
 ## Run locally
 
 Requires Docker Desktop or Docker Engine with Compose v2 or newer. Commands below use

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="1" stop-color="#10223d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#43d9ad"/>
+      <stop offset="1" stop-color="#4ea4ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6da6c9"/>
+    </marker>
+    <style>
+      .title { font: 700 42px Inter, Arial, sans-serif; fill: #f4f8ff; }
+      .subtitle { font: 400 18px Inter, Arial, sans-serif; fill: #9db4cb; }
+      .label { font: 700 18px Inter, Arial, sans-serif; fill: #eef7ff; }
+      .body { font: 400 14px Inter, Arial, sans-serif; fill: #b8cbe0; }
+      .small { font: 600 12px Inter, Arial, sans-serif; fill: #7f9db8; letter-spacing: 1px; }
+      .card { fill: #122943; stroke: #2b5877; stroke-width: 1.5; rx: 18; filter: url(#shadow); }
+      .source { fill: #0d2036; stroke: #264a67; stroke-width: 1.2; rx: 14; }
+      .line { stroke: #6da6c9; stroke-width: 2; fill: none; marker-end: url(#arrow); opacity: .85; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <circle cx="1070" cy="90" r="210" fill="#1b5a7a" opacity="0.13"/>
+  <circle cx="90" cy="740" r="260" fill="#17b890" opacity="0.08"/>
+
+  <text x="70" y="78" class="title">OpsPilot</text>
+  <text x="70" y="112" class="subtitle">Evidence-driven agentic AI for bounded incident investigation</text>
+  <rect x="70" y="134" width="1060" height="4" rx="2" fill="url(#accent)"/>
+
+  <rect x="70" y="195" width="230" height="132" class="card"/>
+  <text x="96" y="230" class="small">OPERATOR EXPERIENCE</text>
+  <text x="96" y="267" class="label">Next.js workspace</text>
+  <text x="96" y="293" class="body">Incidents · evidence · timeline</text>
+
+  <rect x="365" y="195" width="270" height="132" class="card"/>
+  <text x="391" y="230" class="small">CONTROL PLANE</text>
+  <text x="391" y="267" class="label">FastAPI + policy gateway</text>
+  <text x="391" y="293" class="body">Auth · budgets · audit · validation</text>
+
+  <rect x="700" y="175" width="430" height="172" class="card"/>
+  <text x="726" y="210" class="small">BOUNDED INVESTIGATION GRAPH</text>
+  <text x="726" y="247" class="label">Triage → Plan → Collect → Validate</text>
+  <text x="726" y="276" class="body">Typed outputs · hard iteration limits · cost budget</text>
+  <text x="726" y="302" class="body">Terminal completed, inconclusive, failed, or cancelled states</text>
+
+  <path d="M300 261 H365" class="line"/>
+  <path d="M635 261 H700" class="line"/>
+
+  <text x="70" y="414" class="small">READ-ONLY EVIDENCE SOURCES</text>
+  <rect x="70" y="438" width="155" height="86" class="source"/>
+  <text x="94" y="475" class="label">Metrics</text>
+  <text x="94" y="499" class="body">Prometheus</text>
+
+  <rect x="251" y="438" width="155" height="86" class="source"/>
+  <text x="275" y="475" class="label">Logs</text>
+  <text x="275" y="499" class="body">Bounded search</text>
+
+  <rect x="432" y="438" width="155" height="86" class="source"/>
+  <text x="456" y="475" class="label">Database</text>
+  <text x="456" y="499" class="body">Diagnostics</text>
+
+  <rect x="613" y="438" width="155" height="86" class="source"/>
+  <text x="637" y="475" class="label">Deployments</text>
+  <text x="637" y="499" class="body">Change history</text>
+
+  <rect x="794" y="438" width="155" height="86" class="source"/>
+  <text x="818" y="475" class="label">Git history</text>
+  <text x="818" y="499" class="body">Relevant commits</text>
+
+  <rect x="975" y="438" width="155" height="86" class="source"/>
+  <text x="999" y="475" class="label">Code search</text>
+  <text x="999" y="499" class="body">Repository evidence</text>
+
+  <path d="M915 347 V392 H148 V438" class="line"/>
+  <path d="M915 392 H328 V438" class="line"/>
+  <path d="M915 392 H509 V438" class="line"/>
+  <path d="M915 392 H690 V438" class="line"/>
+  <path d="M915 392 H871 V438" class="line"/>
+  <path d="M915 392 H1052 V438" class="line"/>
+
+  <rect x="70" y="595" width="1060" height="128" class="card"/>
+  <text x="96" y="632" class="small">VERIFIED OUTPUT</text>
+  <text x="96" y="669" class="label">Supported hypothesis + root-cause diagnosis + evidence citations</text>
+  <text x="96" y="697" class="body">A diagnosis cannot become final unless every citation belongs to the incident evidence set.</text>
+  <path d="M600 524 V595" class="line"/>
+</svg>
