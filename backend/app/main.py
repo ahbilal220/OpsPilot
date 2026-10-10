@@ -1,8 +1,11 @@
+import asyncio
 import logging
 import re
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
+from urllib.request import Request as UrlRequest
+from urllib.request import urlopen
 from uuid import uuid4
 
 from fastapi import FastAPI, Request, Response
@@ -23,6 +26,23 @@ from app.tools.bootstrap import build_tool_gateway
 from app.tools.routes import router as tools_router
 
 
+def send_keepalive(url: str) -> int:
+    request = UrlRequest(url, headers={"User-Agent": "OpsPilot-Keepalive/1.0"})
+    with urlopen(request, timeout=10) as response:  # noqa: S310 -- configured HTTPS URL
+        return int(response.status)
+
+
+async def run_keepalive(url: str, interval_seconds: int) -> None:
+    logger = logging.getLogger("opspilot.keepalive")
+    while True:
+        await asyncio.sleep(interval_seconds)
+        try:
+            status = await asyncio.to_thread(send_keepalive, url)
+            logger.info("keepalive.completed", extra={"status": status})
+        except Exception:
+            logger.warning("keepalive.failed", exc_info=True)
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     config = settings or Settings()
 
@@ -40,9 +60,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.session_factory = async_sessionmaker(engine, expire_on_commit=False)
         app.state.redis = cache
         app.state.tool_gateway = build_tool_gateway(config, engine, app.state.session_factory)
+        keepalive_task = (
+            asyncio.create_task(
+                run_keepalive(config.keepalive_url, config.keepalive_interval_seconds),
+                name="render-keepalive",
+            )
+            if config.keepalive_url
+            else None
+        )
         try:
             yield
         finally:
+            if keepalive_task:
+                keepalive_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await keepalive_task
             await cache.aclose()
             await engine.dispose()
 

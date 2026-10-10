@@ -32,6 +32,10 @@ services:
         value: inline
       - key: FRONTEND_STATIC_DIR
         value: /app/frontend
+      - key: KEEPALIVE_URL
+        value: https://ahmad-opspilot.onrender.com/api/v1/health
+      - key: KEEPALIVE_INTERVAL_SECONDS
+        value: "840"
       - key: PROMETHEUS_URL
         value: http://127.0.0.1:10000
       - key: TOOL_FIXTURE_ROOT

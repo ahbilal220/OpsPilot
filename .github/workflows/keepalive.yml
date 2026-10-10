@@ -2,8 +2,8 @@ name: Keep the public demo warm
 
 on:
   schedule:
-    # Render idles free services after 15 minutes. Fourteen minutes leaves a small buffer.
-    - cron: "*/14 * * * *"
+    # Offset the backup from the top of the hour, when GitHub's scheduler is busiest.
+    - cron: "7,22,37,52 * * * *"
   workflow_dispatch:
 
 permissions:

@@ -24,13 +24,14 @@ New demo accounts receive the engineer role and can run the deterministic checko
 N+1 investigation. This behavior is enabled only by the Render environment; local and
 production defaults still register read-only viewers.
 
-`.github/workflows/keepalive.yml` pings the health endpoint every 14 minutes using a
-standard GitHub-hosted runner. The repository is public, so these standard runner jobs
-do not incur GitHub Actions charges. Render's own cron service is deliberately not used
-because it has a minimum monthly charge. Render can still restart free instances, the
-workspace has a shared monthly free-instance-hour limit, free Key Value is ephemeral,
-and free Postgres expires after 30 days, so this remains a portfolio demo rather than a
-production availability guarantee.
+The Render-only app configuration sends a lightweight request to its public health
+endpoint every 14 minutes. `.github/workflows/keepalive.yml` schedules the same check
+from a standard GitHub-hosted runner as a best-effort backup. The repository is public,
+so these standard runner jobs do not incur GitHub Actions charges. Render's own cron
+service is deliberately not used because it has a minimum monthly charge. Render can
+still restart free instances, the workspace has a shared monthly free-instance-hour
+limit, free Key Value is ephemeral, and free Postgres expires after 30 days, so this
+remains a portfolio demo rather than a production availability guarantee.
 
 ## Run locally
 

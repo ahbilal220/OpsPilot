@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     registration_default_role: Literal["viewer", "engineer"] = "viewer"
     investigation_execution_mode: Literal["celery", "inline"] = "celery"
     frontend_static_dir: Path | None = None
+    keepalive_url: str | None = None
+    keepalive_interval_seconds: int = Field(default=840, ge=60, le=3600)
     prometheus_url: str = "http://localhost:9090"
     tool_fixture_root: Path = Path("tool-fixtures")
     tool_repository_root: Path = Path("tool-repository")
